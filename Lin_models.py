@@ -32,7 +32,7 @@ def Lin_Net(X):
     inputs = keras.layers.Input(shape=(X.shape[1],1))
 
     # HPF
-    hpf = HPF_Layer(filters=4,kernel_size=5,hpf_kernel='SRM_k.npy',is_train=False)(inputs)
+    hpf = HPF_Layer(filters=4,kernel_size=5,hpf_kernel='SRM_k.npy',is_train=True)(inputs)
 
     # group 1
     x = keras.layers.Conv1D(8, 1, padding='same')(hpf)
