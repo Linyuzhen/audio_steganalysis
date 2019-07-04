@@ -7,8 +7,8 @@ from sklearn.model_selection import train_test_split
 from read_data import read_datasets,get_label
 from Lin_models import Lin_Net
 # Load data&label
-cover_dir = r'E:\林昱臻\实验\audioCNN\Libs\TIMITcut'
-stego_dir = r'E:\林昱臻\实验\audioCNN\Libs\TIMIT_1'
+cover_dir = r'.\cover_dir'
+stego_dir = r'.\stego_dir'
 X = np.vstack((read_datasets(cover_dir),read_datasets(stego_dir)))
 y = get_label(X.shape[0],positive=0.5)
 
@@ -34,7 +34,6 @@ early_stopping=keras.callbacks.EarlyStopping(monitor='val_loss', patience=6, mod
 lr_reduce=keras.callbacks.ReduceLROnPlateau(monitor='val_loss',factor=0.5,patience=3,mode='auto',verbose=0)
 history = model.fit(X_train,y_train,epochs=500,verbose=1,validation_split=0.25,
                     callbacks=[lr_reduce, early_stopping])
-# history = model.fit(X_train,y_train,batch_size=64,epochs=20,validation_data=(X_test,y_test))
 
 history_dict = history.history
 
@@ -44,9 +43,6 @@ loss,accuracy=model.evaluate(X_test,y_test)
 
 print('test loss:',loss)
 print('test accuracy:',accuracy)
-
-# model.save_weights('ROC/STC_2/Chen.h5')
-pd.DataFrame(history_dict).to_csv('save_data/HPF_fix.csv')
 
 # figure acc
 acc=history_dict['acc']
