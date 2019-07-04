@@ -31,10 +31,8 @@ class HPF_Layer(keras.layers.Layer):
 def Lin_Net(X):
     inputs = keras.layers.Input(shape=(X.shape[1],1))
 
-    hpf = HPF_Layer(filters=4,kernel_size=5,hpf_kernel='SRM_k.npy',is_train=False)(inputs)
-
     # HPF
-    # hpf = keras.layers.Conv1D(filters=4,kernel_size=5,padding='same') (inputs)
+    hpf = HPF_Layer(filters=4,kernel_size=5,hpf_kernel='SRM_k.npy',is_train=False)(inputs)
 
     # group 1
     x = keras.layers.Conv1D(8, 1, padding='same')(hpf)
