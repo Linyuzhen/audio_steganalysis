@@ -1,2 +1,2 @@
 # audio_steganalysis
-Building...
+An end-to-end audio steganalysis by Tensorflow
