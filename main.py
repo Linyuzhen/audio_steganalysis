@@ -23,7 +23,7 @@ y_test = keras.utils.to_categorical(y_test, num_classes=2)
 model = Lin_Net(X)
 model = keras.utils.multi_gpu_model(model,gpus=4)
 
-adam = tf.keras.optimizers.Adam(1e-4)
+adam = keras.optimizers.Adam(1e-4)
 model.compile(optimizer=adam,
               loss='binary_crossentropy',
               metrics=['accuracy'])
