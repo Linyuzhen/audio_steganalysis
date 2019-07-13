@@ -34,48 +34,46 @@ def Lin_Net(X):
     inputs = keras.layers.Input(shape=(X.shape[1],1))
 
     # HPF
-    hpf = HPF_Layer(filters=4,kernel_size=5,hpf_kernel='SRM_k.npy',is_train=True)(inputs)
+    hpf = HPF_Layer(filters=4,kernel_size=5,hpf_kernel='SRM_k.npy',is_train=True,name='HPF_layer')(inputs)
 
-    # group 1
-    x = keras.layers.Conv1D(8, 1, padding='same',activation=TLU)(hpf)
-    x = keras.layers.Conv1D(8, 5, padding='same')(x)
-    x = keras.layers.Conv1D(16, 1, padding='same')(x)
+    # Group 1
+    gp1 = keras.layers.Conv1D(8, 1, padding='same',activation=TLU,name='Group1_conv1')(hpf)
+    gp1 = keras.layers.Conv1D(8, 5, padding='same',name='Group1_conv2')(gp1)
+    gp1 = keras.layers.Conv1D(16, 1, padding='same',name='Group1_output')(gp1)
 
-    # group 2
-    x = keras.layers.Conv1D(16, 5, padding='same',activation='relu')(x)
-    x = keras.layers.Conv1D(32, 1, padding='same',activation='relu')(x)
-    x = keras.layers.AveragePooling1D(pool_size=3,strides=2,padding='same')(x)
+    # Group 2
+    gp2 = keras.layers.Conv1D(16, 5, padding='same',activation='relu',name='Group2_conv1')(gp1)
+    gp2 = keras.layers.Conv1D(32, 1, padding='same',activation='relu',name='Group2_conv2')(gp2)
+    gp2 = keras.layers.AveragePooling1D(pool_size=3,strides=2,padding='same',name='Group2_output')(gp2)
 
-    # group 3
-    x = keras.layers.Conv1D(32, 5, padding='same', activation='relu')(x)
-    x = keras.layers.Conv1D(64, 1, padding='same', activation='relu')(x)
-    x = keras.layers.AveragePooling1D(pool_size=3, strides=2, padding='same')(x)
+    # Group 3
+    gp3 = keras.layers.Conv1D(32, 5, padding='same', activation='relu',name='Group3_conv1')(gp2)
+    gp3 = keras.layers.Conv1D(64, 1, padding='same', activation='relu',name='Group3_conv2')(gp3)
+    gp3 = keras.layers.AveragePooling1D(pool_size=3, strides=2, padding='same',name='Group3_output')(gp3)
 
-    # group 4
-    x = keras.layers.Conv1D(64, 5, padding='same', activation='relu')(x)
-    x = keras.layers.Conv1D(128, 1, padding='same', activation='relu')(x)
-    x = keras.layers.AveragePooling1D(pool_size=3, strides=2, padding='same')(x)
+    # Group 4
+    gp4 = keras.layers.Conv1D(64, 5, padding='same', activation='relu',name='Group4_conv1')(gp3)
+    gp4 = keras.layers.Conv1D(128, 1, padding='same', activation='relu',name='Group4_conv2')(gp4)
+    gp4 = keras.layers.AveragePooling1D(pool_size=3, strides=2, padding='same',name='Group4_output')(gp4)
 
-    # group 5
-    x = keras.layers.Conv1D(128, 5, padding='same', activation='relu')(x)
-    x = keras.layers.Conv1D(256, 1, padding='same', activation='relu')(x)
-    x = keras.layers.AveragePooling1D(pool_size=3, strides=2, padding='same')(x)
+    # Group 5
+    gp5 = keras.layers.Conv1D(128, 5, padding='same', activation='relu',name='Group5_conv1')(gp4)
+    gp5 = keras.layers.Conv1D(256, 1, padding='same', activation='relu',name='Group5_conv2')(gp5)
+    gp5 = keras.layers.AveragePooling1D(pool_size=3, strides=2, padding='same',name='Group5_output')(gp5)
 
-    # group 6
-    x = keras.layers.Conv1D(256, 5, padding='same', activation='relu')(x)
-    x = keras.layers.Conv1D(512, 1, padding='same', activation='relu')(x)
-    x = keras.layers.GlobalAveragePooling1D()(x)
+    # Group 6
+    gp6 = keras.layers.Conv1D(256, 5, padding='same', activation='relu',name='Group6_conv1')(gp5)
+    gp6 = keras.layers.Conv1D(512, 1, padding='same', activation='relu',name='Group6_conv2')(gp6)
+    gp6 = keras.layers.GlobalAveragePooling1D(name='Group6_output')(gp6)
 
-    # classifier
-    prob = keras.layers.Dense(2,activation='softmax')(x)
+    # Classifier
+    prob = keras.layers.Dense(2,activation='softmax',name='Classifier')(gp6)
 
     # Build model
     model = keras.models.Model(inputs,prob)
     model.summary()
 
     return model
-
-
 
 
 
