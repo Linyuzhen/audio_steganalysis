@@ -1,50 +1,59 @@
-import tensorflow as tf
-import numpy as np
+import math
 import matplotlib.pyplot as plt
-import pandas as pd
 from tensorflow import keras
-from sklearn.model_selection import train_test_split
-from read_data import read_datasets,get_label
+# from sklearn.model_selection import train_test_split
+from read_data import read_datasets,get_label,data_split,pair_batch_generator
 from Lin_models import Lin_Net
+
 # Load data&label
 cover_dir = r'.\cover_dir'
 stego_dir = r'.\stego_dir'
-X = np.vstack((read_datasets(cover_dir),read_datasets(stego_dir)))
-y = get_label(X.shape[0],positive=0.5)
+X_c = read_datasets(cover_dir)
+X_s = read_datasets(stego_dir)
 
 # Data preprocessing
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state= 0)
+X_train,X_val,X_test = data_split(X_c,X_s)
+y_train = get_label(X_train.shape[0],positive=0.5)
+y_val = get_label(X_val.shape[0],positive=0.5)
+y_test = get_label(X_test.shape[0],positive=0.5)
 
-X_train = X_train.reshape(-1, X.shape[1], 1)
-X_test = X_test.reshape(-1, X.shape[1], 1)
+X_train = X_train.reshape(-1, X_train.shape[1], 1)
+X_val = X_val.reshape(-1, X_val.shape[1], 1)
+X_test = X_test.reshape(-1, X_test.shape[1], 1)
+
 y_train = keras.utils.to_categorical(y_train, num_classes=2)
+y_val = keras.utils.to_categorical(y_val, num_classes=2)
 y_test = keras.utils.to_categorical(y_test, num_classes=2)
 
-model = Lin_Net(X)
-model = keras.utils.multi_gpu_model(model,gpus=4)
-
+# Build model
+model = Lin_Net(X_train)
+# model = keras.models.load_model('model.h5')
+# model = keras.utils.multi_gpu_model(model,gpus=4)
 adam = keras.optimizers.Adam(1e-4)
 model.compile(optimizer=adam,
               loss='binary_crossentropy',
               metrics=['accuracy'])
 
-print('Training--------------------------------')
-# checkpoint=keras.callbacks.ModelCheckpoint('./Checkpoint/best.h5', monitor='val_loss', save_best_only=True, mode='auto',period=5)
+# Training model
+batch_size = 64
+epochs = 10
+steps = math.ceil(len(X_train)//batch_size)
+train_batch = pair_batch_generator(X_train, y_train, batch_size=batch_size)
+
 early_stopping=keras.callbacks.EarlyStopping(monitor='val_loss', patience=6, mode='auto', verbose=0)
 lr_reduce=keras.callbacks.ReduceLROnPlateau(monitor='val_loss',factor=0.5,patience=3,mode='auto',verbose=0)
-history = model.fit(X_train,y_train,epochs=500,verbose=1,validation_split=0.25,
-                    callbacks=[lr_reduce, early_stopping])
+print('Training--------------------------------')
+history = model.fit_generator(train_batch,steps_per_epoch=steps,epochs=epochs,
+                    validation_data=(X_val,y_val),verbose=1,callbacks=[lr_reduce, early_stopping])
 
-history_dict = history.history
-
-# test model
+# Testing model
 print("\nTesting------------------------------------")
 loss,accuracy=model.evaluate(X_test,y_test)
 
-print('test loss:',loss)
-print('test accuracy:',accuracy)
+keras.models.save_model(model,'model.h5')
 
 # figure acc
+history_dict = history.history
 acc=history_dict['acc']
 val_acc=history_dict['val_acc']
 epochs=range(1,len(acc)+1)
@@ -70,10 +79,3 @@ plt.ylabel('Loss')
 plt.legend()
 
 plt.show()
-
-
-
-
-
-
-
