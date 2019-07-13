@@ -1,5 +1,4 @@
 import numpy as np
-import tensorflow as tf
 from tensorflow import keras
 
 class HPF_Layer(keras.layers.Layer):
@@ -27,6 +26,9 @@ class HPF_Layer(keras.layers.Layer):
     def compute_output_shape(self, input_shape):
         return input_shape
 
+def TLU(x,th=3.0):
+    return keras.backend.minimum(keras.backend.maximum(x,-th),th)
+
 
 def Lin_Net(X):
     inputs = keras.layers.Input(shape=(X.shape[1],1))
@@ -35,8 +37,7 @@ def Lin_Net(X):
     hpf = HPF_Layer(filters=4,kernel_size=5,hpf_kernel='SRM_k.npy',is_train=True)(inputs)
 
     # group 1
-    x = keras.layers.Conv1D(8, 1, padding='same')(hpf)
-    x = keras.layers.ThresholdedReLU(theta=3.0)(x)
+    x = keras.layers.Conv1D(8, 1, padding='same',activation=TLU)(hpf)
     x = keras.layers.Conv1D(8, 5, padding='same')(x)
     x = keras.layers.Conv1D(16, 1, padding='same')(x)
 
@@ -60,7 +61,7 @@ def Lin_Net(X):
     x = keras.layers.Conv1D(256, 1, padding='same', activation='relu')(x)
     x = keras.layers.AveragePooling1D(pool_size=3, strides=2, padding='same')(x)
 
-    # group 4
+    # group 6
     x = keras.layers.Conv1D(256, 5, padding='same', activation='relu')(x)
     x = keras.layers.Conv1D(512, 1, padding='same', activation='relu')(x)
     x = keras.layers.GlobalAveragePooling1D()(x)
@@ -73,6 +74,14 @@ def Lin_Net(X):
     model.summary()
 
     return model
+
+
+
+
+
+
+
+
 
 
 
