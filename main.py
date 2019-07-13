@@ -28,7 +28,7 @@ y_test = keras.utils.to_categorical(y_test, num_classes=2)
 # Build model
 model = Lin_Net(X_train)
 
-# Before fine-tuning the network, you should change the names of the HPF_layer and Dense(2) layers.
+# Before fine-tuning the network, you should change the names of the HPF layer and Dense(2) layer.
 model.load_weights('model_weights.h5',by_name=True)
 # model = keras.utils.multi_gpu_model(model,gpus=4)
 
