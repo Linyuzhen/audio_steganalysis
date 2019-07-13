@@ -52,7 +52,7 @@ loss,accuracy=model.evaluate(X_test,y_test)
 
 keras.models.save_model(model,'model.h5')
 
-# figure acc
+# Figure acc
 history_dict = history.history
 acc=history_dict['acc']
 val_acc=history_dict['val_acc']
@@ -67,7 +67,7 @@ plt.legend()
 
 plt.show()
 
-# figure loss
+# Figure loss
 loss_value=history_dict['loss']
 val_loss_value=history_dict['val_loss']
 
