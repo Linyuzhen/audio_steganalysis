@@ -27,8 +27,11 @@ y_test = keras.utils.to_categorical(y_test, num_classes=2)
 
 # Build model
 model = Lin_Net(X_train)
-# model = keras.models.load_model('model.h5')
+
+# Before fine-tuning the network, you should change the names of the HPF_layer and Dense(2) layers.
+model.load_weights('model_weights.h5',by_name=True)
 # model = keras.utils.multi_gpu_model(model,gpus=4)
+
 adam = keras.optimizers.Adam(1e-4)
 model.compile(optimizer=adam,
               loss='binary_crossentropy',
@@ -50,7 +53,7 @@ history = model.fit_generator(train_batch,steps_per_epoch=steps,epochs=epochs,
 print("\nTesting------------------------------------")
 loss,accuracy=model.evaluate(X_test,y_test)
 
-keras.models.save_model(model,'model.h5')
+model.save_weights('model_weights.h5')
 
 # Figure acc
 history_dict = history.history
